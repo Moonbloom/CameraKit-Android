@@ -68,7 +68,7 @@ class Camera2 extends CameraImpl {
         try {
             ids = mCameraManager.getCameraIdList();
         } catch (CameraAccessException e) {
-            Log.e("CameraKit", e.toString());
+            Log.e("CameraKit", "setFacing - CameraAccessException", e);
             return;
         }
 

@@ -5,6 +5,7 @@ import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -423,9 +424,9 @@ public class Camera1 extends CameraImpl {
         try {
             mMediaRecorder.prepare();
         } catch (IllegalStateException e) {
-            e.printStackTrace();
+            Log.e("CameraKit", "prepareMediaRecorder - IllegalStateException", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("CameraKit", "prepareMediaRecorder - IOException", e);
         }
     }
 

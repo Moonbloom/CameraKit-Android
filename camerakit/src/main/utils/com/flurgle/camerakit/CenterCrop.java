@@ -39,7 +39,7 @@ public class CenterCrop {
             bitmap.compress(Bitmap.CompressFormat.JPEG, jpegCompression, out);
             this.croppedJpeg = out.toByteArray();
         } catch (IOException e) {
-            Log.e("CameraKit", e.toString());
+            Log.e("CameraKit", "CenterCrop - IOException", e);
         }
     }
 
