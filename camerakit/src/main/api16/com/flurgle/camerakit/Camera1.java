@@ -457,7 +457,7 @@ public class Camera1 extends CameraImpl {
                     if (mCamera != null) {
 
                         Camera.Parameters parameters = mCamera.getParameters();
-                        if (parameters.getMaxNumMeteringAreas() > 0) {
+                        if (parameters.getMaxNumMeteringAreas() > 0 && parameters.getMaxNumFocusAreas() > 0) {
                             Rect rect = calculateFocusArea(event.getX(), event.getY());
 
                             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
