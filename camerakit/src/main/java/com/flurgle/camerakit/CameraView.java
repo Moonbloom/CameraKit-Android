@@ -87,29 +87,35 @@ public class CameraView extends FrameLayout {
         setMethod(mMethod);
         setZoom(mZoom);
 
-        mDisplayOrientationDetector = new DisplayOrientationDetector(context) {
-            @Override
-            public void onDisplayOrientationChanged(int displayOrientation) {
-                mCameraImpl.setDisplayOrientation(displayOrientation);
-                mPreviewImpl.setDisplayOrientation(displayOrientation);
-            }
-        };
+        if (!isInEditMode()) {
+            mDisplayOrientationDetector = new DisplayOrientationDetector(context) {
+                @Override
+                public void onDisplayOrientationChanged(int displayOrientation) {
+                    mCameraImpl.setDisplayOrientation(displayOrientation);
+                    mPreviewImpl.setDisplayOrientation(displayOrientation);
+                }
+            };
+        }
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        mDisplayOrientationDetector.enable(
-                ViewCompat.isAttachedToWindow(this)
-                        ? DisplayManagerCompat.getInstance(getContext()).getDisplay(Display.DEFAULT_DISPLAY)
-                        : null
-        );
+        if (!isInEditMode()) {
+            mDisplayOrientationDetector.enable(
+                    ViewCompat.isAttachedToWindow(this)
+                            ? DisplayManagerCompat.getInstance(getContext()).getDisplay(Display.DEFAULT_DISPLAY)
+                            : null
+            );
+        }
     }
 
     @Override
     protected void onDetachedFromWindow() {
-        mDisplayOrientationDetector.disable();
-        super.onDetachedFromWindow();
+        if (!isInEditMode()) {
+            mDisplayOrientationDetector.disable();
+            super.onDetachedFromWindow();
+        }
     }
 
     @Override
