@@ -32,6 +32,7 @@ public class MirrorYTask implements Runnable {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         correctedImage.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         byte[] correctedData = stream.toByteArray();
+        correctedImage.recycle();
 
         onMirrorYDoneListener.onMirrorYDone(correctedData);
     }

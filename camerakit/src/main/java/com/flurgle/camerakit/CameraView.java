@@ -1,17 +1,11 @@
 package com.flurgle.camerakit;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.hardware.display.DisplayManagerCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -122,7 +116,7 @@ public class CameraView extends FrameLayout {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (mAdjustViewBounds) {
             Size previewSize = getPreviewSize();
-            if(previewSize != null) {
+            if (previewSize != null) {
                 if (getLayoutParams().width == LayoutParams.WRAP_CONTENT) {
                     int height = MeasureSpec.getSize(heightMeasureSpec);
                     float ratio = (float) height / (float) previewSize.getWidth();
@@ -142,7 +136,7 @@ public class CameraView extends FrameLayout {
                     );
                     return;
                 }
-            }else{
+            } else {
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
                 return;
             }
@@ -152,17 +146,12 @@ public class CameraView extends FrameLayout {
     }
 
     public void start() {
-        int permissionCheck = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA);
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    mCameraImpl.start();
-                }
-            }).start();
-        } else {
-            requestCameraPermission();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mCameraImpl.start();
+            }
+        }).start();
     }
 
     public void stop() {
@@ -268,24 +257,6 @@ public class CameraView extends FrameLayout {
 
     public Size getCaptureSize() {
         return mCameraImpl != null ? mCameraImpl.getCaptureResolution() : null;
-    }
-
-    private void requestCameraPermission() {
-        Activity activity = null;
-        Context context = getContext();
-        while (context instanceof ContextWrapper) {
-            if (context instanceof Activity) {
-                activity = (Activity) context;
-            }
-            context = ((ContextWrapper) context).getBaseContext();
-        }
-
-        if (activity != null) {
-            ActivityCompat.requestPermissions(
-                    activity,
-                    new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
-                    CameraKit.Constants.PERMISSION_REQUEST_CAMERA);
-        }
     }
 
     private class CameraListenerMiddleWare extends CameraListener {
