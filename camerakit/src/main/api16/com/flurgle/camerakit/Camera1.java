@@ -199,18 +199,8 @@ public class Camera1 extends CameraImpl {
                 mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, final Camera camera) {
-                        if (mConfig.mMirrorYAxisForFrontCamera && mFacing == CameraKit.Constants.FACING_FRONT) {
-                            new Thread(new MirrorYTask(data, new MirrorYTask.OnMirrorYDoneListener() {
-                                @Override
-                                public void onMirrorYDone(byte[] correctedData) {
-                                    mCameraListener.onPictureTaken(correctedData);
-                                    camera.startPreview();
-                                }
-                            })).start();
-                        } else {
-                            mCameraListener.onPictureTaken(data);
-                            camera.startPreview();
-                        }
+                        mCameraListener.onPictureTaken(data, mCameraInfo);
+                        camera.startPreview();
                     }
                 });
                 break;
@@ -222,7 +212,7 @@ public class Camera1 extends CameraImpl {
                         new Thread(new ProcessStillTask(data, camera, mCameraInfo, new ProcessStillTask.OnStillProcessedListener() {
                             @Override
                             public void onStillProcessed(final YuvImage yuv) {
-                                mCameraListener.onPictureTaken(yuv);
+                                mCameraListener.onPictureTaken(yuv, mCameraInfo);
                             }
                         })).start();
                     }

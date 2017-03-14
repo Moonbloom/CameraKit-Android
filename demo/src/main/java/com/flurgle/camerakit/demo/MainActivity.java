@@ -3,6 +3,7 @@ package com.flurgle.camerakit.demo;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
@@ -18,7 +19,6 @@ import android.widget.Toast;
 import com.flurgle.camerakit.CameraKit;
 import com.flurgle.camerakit.CameraListener;
 import com.flurgle.camerakit.CameraView;
-import com.flurgle.camerakit.Config;
 
 import java.io.File;
 
@@ -88,10 +88,6 @@ public class MainActivity extends AppCompatActivity implements View.OnLayoutChan
         });
 
         camera.addOnLayoutChangeListener(this);
-        
-        camera.setConfig(new Config.Builder()
-                .setMirrorYAxisForFrontCamera(true)
-                .build());
 
         captureModeRadioGroup.setOnCheckedChangeListener(captureModeChangedListener);
         cropModeRadioGroup.setOnCheckedChangeListener(cropModeChangedListener);
@@ -116,8 +112,8 @@ public class MainActivity extends AppCompatActivity implements View.OnLayoutChan
         final long startTime = System.currentTimeMillis();
         camera.setCameraListener(new CameraListener() {
             @Override
-            public void onPictureTaken(byte[] jpeg) {
-                super.onPictureTaken(jpeg);
+            public void onPictureTaken(byte[] jpeg, Camera.CameraInfo cameraInfo) {
+                super.onPictureTaken(jpeg, cameraInfo);
                 long callbackTime = System.currentTimeMillis();
                 Bitmap bitmap = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length);
                 ResultHolder.dispose();
