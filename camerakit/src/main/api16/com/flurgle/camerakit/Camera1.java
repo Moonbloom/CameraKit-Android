@@ -346,20 +346,28 @@ public class Camera1 extends CameraImpl {
     }
 
     private void adjustCameraParameters() {
-        mPreview.setTruePreviewSize(
-                getPreviewResolution().getWidth(),
-                getPreviewResolution().getHeight()
-        );
+        Size previewResolution = getPreviewResolution();
+        if (previewResolution != null) {
+            mPreview.setTruePreviewSize(
+                    previewResolution.getWidth(),
+                    previewResolution.getHeight()
+            );
+        }
 
-        mCameraParameters.setPreviewSize(
-                getPreviewResolution().getWidth(),
-                getPreviewResolution().getHeight()
-        );
+        if (previewResolution != null) {
+            mCameraParameters.setPreviewSize(
+                    previewResolution.getWidth(),
+                    previewResolution.getHeight()
+            );
+        }
 
-        mCameraParameters.setPictureSize(
-                getCaptureResolution().getWidth(),
-                getCaptureResolution().getHeight()
-        );
+        Size captureResolution = getCaptureResolution();
+        if (captureResolution != null) {
+            mCameraParameters.setPictureSize(
+                    captureResolution.getWidth(),
+                    captureResolution.getHeight()
+            );
+        }
         int rotation = (calculateCameraRotation(mDisplayOrientation)
                 + (mFacing == CameraKit.Constants.FACING_FRONT ? 180 : 0)) % 360;
         mCameraParameters.setRotation(rotation);
