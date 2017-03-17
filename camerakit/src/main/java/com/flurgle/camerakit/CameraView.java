@@ -166,13 +166,7 @@ public class CameraView extends FrameLayout {
 
     public void setFacing(@Facing final int facing) {
         this.mFacing = facing;
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mCameraImpl.setFacing(facing);
-            }
-        }).start();
+        mCameraImpl.setFacing(facing);
     }
 
     public void setFlash(@Flash int flash) {
