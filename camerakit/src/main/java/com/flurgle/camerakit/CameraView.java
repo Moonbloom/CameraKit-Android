@@ -272,28 +272,28 @@ public class CameraView extends FrameLayout {
         }
 
         @Override
-        public void onPictureTaken(byte[] jpeg, @Facing int facing) {
-            super.onPictureTaken(jpeg, facing);
+        public void onPictureTaken(byte[] jpeg) {
+            super.onPictureTaken(jpeg);
             if (mCropOutput) {
                 int width = mMethod == METHOD_STANDARD ? mCameraImpl.getCaptureResolution().getWidth() : mCameraImpl.getPreviewResolution().getWidth();
                 int height = mMethod == METHOD_STANDARD ? mCameraImpl.getCaptureResolution().getHeight() : mCameraImpl.getPreviewResolution().getHeight();
                 AspectRatio outputRatio = AspectRatio.of(getWidth(), getHeight());
-                getCameraListener().onPictureTaken(new CenterCrop(jpeg, outputRatio, mJpegQuality).getJpeg(), facing);
+                getCameraListener().onPictureTaken(new CenterCrop(jpeg, outputRatio, mJpegQuality).getJpeg());
             } else {
-                getCameraListener().onPictureTaken(jpeg, facing);
+                getCameraListener().onPictureTaken(jpeg);
             }
         }
 
         @Override
-        public void onPictureTaken(YuvImage yuv, @Facing int facing) {
-            super.onPictureTaken(yuv, facing);
+        public void onPictureTaken(YuvImage yuv) {
+            super.onPictureTaken(yuv);
             if (mCropOutput) {
                 AspectRatio outputRatio = AspectRatio.of(getWidth(), getHeight());
-                getCameraListener().onPictureTaken(new CenterCrop(yuv, outputRatio, mJpegQuality).getJpeg(), facing);
+                getCameraListener().onPictureTaken(new CenterCrop(yuv, outputRatio, mJpegQuality).getJpeg());
             } else {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 yuv.compressToJpeg(new Rect(0, 0, yuv.getWidth(), yuv.getHeight()), mJpegQuality, out);
-                getCameraListener().onPictureTaken(out.toByteArray(), facing);
+                getCameraListener().onPictureTaken(out.toByteArray());
             }
         }
 

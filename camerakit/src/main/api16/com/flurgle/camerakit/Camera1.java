@@ -199,7 +199,7 @@ public class Camera1 extends CameraImpl {
                 mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
                     @Override
                     public void onPictureTaken(byte[] data, final Camera camera) {
-                        mCameraListener.onPictureTaken(data, mFacing);
+                        mCameraListener.onPictureTaken(data);
                         camera.startPreview();
                     }
                 });
@@ -212,7 +212,7 @@ public class Camera1 extends CameraImpl {
                         new Thread(new ProcessStillTask(data, camera, mCameraInfo, new ProcessStillTask.OnStillProcessedListener() {
                             @Override
                             public void onStillProcessed(final YuvImage yuv) {
-                                mCameraListener.onPictureTaken(yuv, mFacing);
+                                mCameraListener.onPictureTaken(yuv);
                             }
                         })).start();
                     }

@@ -18,7 +18,6 @@ import android.widget.Toast;
 import com.flurgle.camerakit.CameraKit;
 import com.flurgle.camerakit.CameraListener;
 import com.flurgle.camerakit.CameraView;
-import com.flurgle.camerakit.Facing;
 
 import java.io.File;
 
@@ -112,8 +111,8 @@ public class MainActivity extends AppCompatActivity implements View.OnLayoutChan
         final long startTime = System.currentTimeMillis();
         camera.setCameraListener(new CameraListener() {
             @Override
-            public void onPictureTaken(byte[] jpeg, @Facing int facing) {
-                super.onPictureTaken(jpeg, facing);
+            public void onPictureTaken(byte[] jpeg) {
+                super.onPictureTaken(jpeg);
                 long callbackTime = System.currentTimeMillis();
                 Bitmap bitmap = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.length);
                 ResultHolder.dispose();

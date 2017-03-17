@@ -14,11 +14,11 @@ public abstract class CameraListener {
 
     }
 
-    public void onPictureTaken(byte[] jpeg, @Facing int facing) {
+    public void onPictureTaken(byte[] jpeg) {
 
     }
 
-    public void onPictureTaken(YuvImage yuv, @Facing int facing) {
+    public void onPictureTaken(YuvImage yuv) {
 
     }
 
