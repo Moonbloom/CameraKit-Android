@@ -473,17 +473,21 @@ public class Camera1 extends CameraImpl {
                                     handler.postDelayed(new Runnable() {
                                         @Override
                                         public void run() {
-                                            camera.cancelAutoFocus();
-                                            Camera.Parameters params = camera.getParameters();
-                                            if (params.getFocusMode() != Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) {
-                                                params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-                                                params.setFocusAreas(null);
-                                                params.setMeteringAreas(null);
-                                                updateParametersSafe(params);
-                                            }
+                                            try {
+                                                camera.cancelAutoFocus();
+                                                Camera.Parameters params = camera.getParameters();
+                                                if (params.getFocusMode() != Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) {
+                                                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                                                    params.setFocusAreas(null);
+                                                    params.setMeteringAreas(null);
+                                                    updateParametersSafe(params);
+                                                }
 
-                                            if (mAutofocusCallback != null) {
-                                                mAutofocusCallback.onAutoFocus(success, camera);
+                                                if (mAutofocusCallback != null) {
+                                                    mAutofocusCallback.onAutoFocus(success, camera);
+                                                }
+                                            } catch (Exception e) {
+                                                Log.e("CameraKit", "Resetting autofocus failed", e);
                                             }
                                         }
                                     }, 5000);
