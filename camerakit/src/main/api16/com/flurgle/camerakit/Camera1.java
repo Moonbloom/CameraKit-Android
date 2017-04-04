@@ -60,6 +60,9 @@ public class Camera1 extends CameraImpl {
     @Zoom
     private int mZoom;
 
+    @VideoQuality
+    private int mVideoQuality;
+
     Camera1(CameraListener callback, PreviewImpl preview) {
         super(callback, preview);
         preview.setCallback(new PreviewImpl.Callback() {
@@ -194,6 +197,11 @@ public class Camera1 extends CameraImpl {
     }
 
     @Override
+    void setVideoQuality(int videoQuality) {
+        this.mVideoQuality = videoQuality;
+    }
+
+    @Override
     void captureImage() {
         switch (mMethod) {
             case METHOD_STANDARD:
@@ -232,6 +240,7 @@ public class Camera1 extends CameraImpl {
     @Override
     void endVideo() {
         mMediaRecorder.stop();
+        mMediaRecorder.release();
         mMediaRecorder = null;
         mCameraListener.onVideoTaken(mVideoFile);
     }
@@ -407,15 +416,14 @@ public class Camera1 extends CameraImpl {
         mCamera.unlock();
 
         mMediaRecorder.setCamera(mCamera);
+
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-        mMediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_480P));
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+
+        mMediaRecorder.setProfile(getCamcorderProfile(mVideoQuality));
 
         mVideoFile = new File(mPreview.getView().getContext().getExternalFilesDir(null), "video.mp4");
         mMediaRecorder.setOutputFile(mVideoFile.getAbsolutePath());
-
-        mMediaRecorder.setMaxDuration(20000);
-        mMediaRecorder.setMaxFileSize(5000000);
         mMediaRecorder.setOrientationHint(mCameraInfo.orientation);
     }
 
@@ -427,6 +435,53 @@ public class Camera1 extends CameraImpl {
         } catch (IOException e) {
             Log.e("CameraKit", "prepareMediaRecorder - IOException", e);
         }
+    }
+
+    private CamcorderProfile getCamcorderProfile(@VideoQuality int videoQuality) {
+        CamcorderProfile camcorderProfile = null;
+        switch (videoQuality) {
+            case CameraKit.Constants.VIDEO_QUALITY_480P:
+                if (CamcorderProfile.hasProfile(mCameraId, CamcorderProfile.QUALITY_480P)) {
+                    camcorderProfile = CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_480P);
+                } else {
+                    return getCamcorderProfile(CameraKit.Constants.VIDEO_QUALITY_LOWEST);
+                }
+                break;
+
+            case CameraKit.Constants.VIDEO_QUALITY_720P:
+                if (CamcorderProfile.hasProfile(mCameraId, CamcorderProfile.QUALITY_720P)) {
+                    camcorderProfile = CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_720P);
+                } else {
+                    return getCamcorderProfile(CameraKit.Constants.VIDEO_QUALITY_480P);
+                }
+                break;
+
+            case CameraKit.Constants.VIDEO_QUALITY_1080P:
+                if (CamcorderProfile.hasProfile(mCameraId, CamcorderProfile.QUALITY_1080P)) {
+                    camcorderProfile = CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_1080P);
+                } else {
+                    return getCamcorderProfile(CameraKit.Constants.VIDEO_QUALITY_720P);
+                }
+                break;
+
+            case CameraKit.Constants.VIDEO_QUALITY_2160P:
+                try {
+                    camcorderProfile = CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_2160P);
+                } catch (Exception e) {
+                    return getCamcorderProfile(CameraKit.Constants.VIDEO_QUALITY_HIGHEST);
+                }
+                break;
+
+            case CameraKit.Constants.VIDEO_QUALITY_HIGHEST:
+                camcorderProfile = CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_HIGH);
+                break;
+
+            case CameraKit.Constants.VIDEO_QUALITY_LOWEST:
+                camcorderProfile = CamcorderProfile.get(mCameraId, CamcorderProfile.QUALITY_LOW);
+                break;
+        }
+
+        return camcorderProfile;
     }
 
     void setTapToAutofocusListener(Camera.AutoFocusCallback callback) {
@@ -458,6 +513,9 @@ public class Camera1 extends CameraImpl {
                         final Camera.Parameters parameters = mCamera.getParameters();
                         if (parameters.getMaxNumMeteringAreas() > 0 && parameters.getMaxNumFocusAreas() > 0) {
                             Rect rect = calculateFocusArea(event.getX(), event.getY());
+                            if (!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                                return false; //cannot autoFocus
+                            }
 
                             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                             List<Camera.Area> meteringAreas = new ArrayList<>();
