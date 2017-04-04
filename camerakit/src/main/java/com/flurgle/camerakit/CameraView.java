@@ -1,12 +1,18 @@
 package com.flurgle.camerakit;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.hardware.display.DisplayManagerCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
@@ -17,6 +23,8 @@ import android.widget.FrameLayout;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.flurgle.camerakit.CameraKit.Constants.FACING_BACK;
 import static com.flurgle.camerakit.CameraKit.Constants.FACING_FRONT;
@@ -24,6 +32,10 @@ import static com.flurgle.camerakit.CameraKit.Constants.FLASH_AUTO;
 import static com.flurgle.camerakit.CameraKit.Constants.FLASH_OFF;
 import static com.flurgle.camerakit.CameraKit.Constants.FLASH_ON;
 import static com.flurgle.camerakit.CameraKit.Constants.METHOD_STANDARD;
+import static com.flurgle.camerakit.CameraKit.Constants.PERMISSIONS_LAZY;
+import static com.flurgle.camerakit.CameraKit.Constants.PERMISSIONS_NONE;
+import static com.flurgle.camerakit.CameraKit.Constants.PERMISSIONS_PICTURE;
+import static com.flurgle.camerakit.CameraKit.Constants.PERMISSIONS_STRICT;
 
 public class CameraView extends FrameLayout {
 
@@ -41,6 +53,9 @@ public class CameraView extends FrameLayout {
 
     @Zoom
     private int mZoom;
+
+    @Permissions
+    private int mPermissions;
 
     @VideoQuality
     private int mVideoQuality;
@@ -74,6 +89,7 @@ public class CameraView extends FrameLayout {
                 mFocus = a.getInteger(R.styleable.CameraView_ckFocus, CameraKit.Defaults.DEFAULT_FOCUS);
                 mMethod = a.getInteger(R.styleable.CameraView_ckMethod, CameraKit.Defaults.DEFAULT_METHOD);
                 mZoom = a.getInteger(R.styleable.CameraView_ckZoom, CameraKit.Defaults.DEFAULT_ZOOM);
+                mPermissions = a.getInteger(R.styleable.CameraView_ckPermissions, CameraKit.Defaults.DEFAULT_PERMISSIONS);
                 mVideoQuality = a.getInteger(R.styleable.CameraView_ckVideoQuality, CameraKit.Defaults.DEFAULT_VIDEO_QUALITY);
                 mJpegQuality = a.getInteger(R.styleable.CameraView_ckJpegQuality, CameraKit.Defaults.DEFAULT_JPEG_QUALITY);
                 mCropOutput = a.getBoolean(R.styleable.CameraView_ckCropOutput, CameraKit.Defaults.DEFAULT_CROP_OUTPUT);
@@ -93,6 +109,7 @@ public class CameraView extends FrameLayout {
         setFocus(mFocus);
         setMethod(mMethod);
         setZoom(mZoom);
+        setPermissions(mPermissions);
         setVideoQuality(mVideoQuality);
 
         if (!isInEditMode()) {
@@ -175,6 +192,36 @@ public class CameraView extends FrameLayout {
     }
 
     public void start() {
+        int cameraCheck = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA);
+        int audioCheck = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO);
+
+        switch (mPermissions) {
+            case PERMISSIONS_STRICT:
+                if (cameraCheck != PackageManager.PERMISSION_GRANTED || audioCheck != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(true, true);
+                    return;
+                }
+                break;
+
+            case PERMISSIONS_LAZY:
+                if (cameraCheck != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(true, true);
+                    return;
+                }
+                break;
+
+            case PERMISSIONS_PICTURE:
+                if (cameraCheck != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(true, false);
+                    return;
+                }
+                break;
+
+            case PERMISSIONS_NONE:
+                //Do absolutely nothing, just continue and start the camera
+                break;
+        }
+
         new Handler().post(new Runnable() {
             @Override
             public void run() {
@@ -220,6 +267,10 @@ public class CameraView extends FrameLayout {
     public void setZoom(@Zoom int zoom) {
         this.mZoom = zoom;
         mCameraImpl.setZoom(mZoom);
+    }
+
+    public void setPermissions(@Permissions int permissions) {
+        this.mPermissions = permissions;
     }
 
     public void setVideoQuality(@VideoQuality int videoQuality) {
@@ -291,6 +342,32 @@ public class CameraView extends FrameLayout {
 
     public Size getCaptureSize() {
         return mCameraImpl != null ? mCameraImpl.getCaptureResolution() : null;
+    }
+
+    private void requestPermissions(boolean requestCamera, boolean requestAudio) {
+        Activity activity = null;
+        Context context = getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                activity = (Activity) context;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+
+        List<String> permissions = new ArrayList<>();
+        if (requestCamera) {
+            permissions.add(Manifest.permission.CAMERA);
+        }
+        if (requestAudio) {
+            permissions.add(Manifest.permission.RECORD_AUDIO);
+        }
+
+        if (activity != null) {
+            ActivityCompat.requestPermissions(
+                    activity,
+                    permissions.toArray(new String[permissions.size()]),
+                    CameraKit.Constants.PERMISSION_REQUEST_CAMERA);
+        }
     }
 
     private class CameraListenerMiddleWare extends CameraListener {

@@ -34,6 +34,7 @@ public class CameraKit {
         public static final int METHOD_STILL = 1;
         public static final int METHOD_SPEED = 2;
 
+        public static final int PERMISSIONS_NONE = -1;
         public static final int PERMISSIONS_STRICT = 0;
         public static final int PERMISSIONS_LAZY = 1;
         public static final int PERMISSIONS_PICTURE = 2;
@@ -54,7 +55,7 @@ public class CameraKit {
         static final int DEFAULT_FOCUS = Constants.FOCUS_CONTINUOUS;
         static final int DEFAULT_ZOOM = Constants.ZOOM_OFF;
         static final int DEFAULT_METHOD = Constants.METHOD_STANDARD;
-        static final int DEFAULT_PERMISSIONS = Constants.PERMISSIONS_STRICT;
+        static final int DEFAULT_PERMISSIONS = Constants.PERMISSIONS_NONE;
         static final int DEFAULT_VIDEO_QUALITY = Constants.VIDEO_QUALITY_480P;
 
         static final int DEFAULT_JPEG_QUALITY = 100;
