@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -16,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.hardware.display.DisplayManagerCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -218,21 +218,21 @@ public class CameraView extends FrameLayout {
                 break;
 
             case PERMISSIONS_NONE:
-                //Do absolutely nothing, just continue and start the camera
+                //Do absolutely nothing, just continue and start the camera - The developer using the lib should handle permissions before calling .start();
                 break;
         }
 
-        new Handler().post(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCameraImpl.start();
-                    }
-                }).start();
+                try {
+                    mCameraImpl.start();
+                } catch (RuntimeException e) {
+                    Log.e("CameraKit", "Starting camera failed", e);
+                    mCameraListener.onException(e, true);
+                }
             }
-        });
+        }).start();
     }
 
     public void stop() {
@@ -416,6 +416,12 @@ public class CameraView extends FrameLayout {
         public void onVideoTaken(File video) {
             super.onVideoTaken(video);
             getCameraListener().onVideoTaken(video);
+        }
+
+        @Override
+        public void onException(Exception exception, boolean isFatal) {
+            super.onException(exception, isFatal);
+            getCameraListener().onException(exception, isFatal);
         }
 
         public void setCameraListener(@Nullable CameraListener cameraListener) {

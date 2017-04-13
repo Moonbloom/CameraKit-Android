@@ -76,7 +76,6 @@ public class Camera1 extends CameraImpl {
         });
 
         mCameraInfo = new Camera.CameraInfo();
-
     }
 
     // CameraImpl:
@@ -432,8 +431,10 @@ public class Camera1 extends CameraImpl {
             mMediaRecorder.prepare();
         } catch (IllegalStateException e) {
             Log.e("CameraKit", "prepareMediaRecorder - IllegalStateException", e);
+            mCameraListener.onException(e, false);
         } catch (IOException e) {
             Log.e("CameraKit", "prepareMediaRecorder - IOException", e);
+            mCameraListener.onException(e, false);
         }
     }
 
@@ -546,6 +547,7 @@ public class Camera1 extends CameraImpl {
                                                 }
                                             } catch (Exception e) {
                                                 Log.e("CameraKit", "Resetting autofocus failed", e);
+                                                mCameraListener.onException(e, false);
                                             }
                                         }
                                     }, 5000);
@@ -573,6 +575,7 @@ public class Camera1 extends CameraImpl {
             mCamera.setParameters(parameters);
         } catch (Exception e) {
             Log.e("CameraKit", "Failed to set parameters", e);
+            mCameraListener.onException(e, false);
         }
     }
 

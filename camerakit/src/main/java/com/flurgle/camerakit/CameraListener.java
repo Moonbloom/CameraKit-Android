@@ -25,4 +25,8 @@ public abstract class CameraListener {
     public void onVideoTaken(File video) {
 
     }
+
+    public void onException(Exception exception, boolean isFatal) {
+
+    }
 }
