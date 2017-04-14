@@ -94,18 +94,20 @@ class TextureViewPreview extends PreviewImpl {
     void setTruePreviewSize(int width, int height) {
         super.setTruePreviewSize(width, height);
         if (mTextureView.getSurfaceTexture() != null) {
-            mTextureView.getSurfaceTexture().setDefaultBufferSize(width, height);
+            if (width != 0 && height != 0) {
+                mTextureView.getSurfaceTexture().setDefaultBufferSize(width, height);
+            }
         }
     }
 
-    void configureTransform() {
+    private void configureTransform() {
         Matrix matrix = new Matrix();
         if (mDisplayOrientation % 180 == 90) {
             final int width = getWidth();
             final int height = getHeight();
             // Rotate the camera preview when the screen is landscape.
             matrix.setPolyToPoly(
-                    new float[]{
+                    new float[] {
                             0.f, 0.f, // top left
                             width, 0.f, // top right
                             0.f, height, // bottom left
@@ -113,14 +115,14 @@ class TextureViewPreview extends PreviewImpl {
                     }, 0,
                     mDisplayOrientation == 90 ?
                             // Clockwise
-                            new float[]{
+                            new float[] {
                                     0.f, height, // top left
                                     0.f, 0.f, // top right
                                     width, height, // bottom left
                                     width, 0.f, // bottom right
                             } : // mDisplayOrientation == 270
                             // Counter-clockwise
-                            new float[]{
+                            new float[] {
                                     width, 0.f, // top left
                                     width, height, // top right
                                     0.f, 0.f, // bottom left
@@ -130,5 +132,4 @@ class TextureViewPreview extends PreviewImpl {
         }
         mTextureView.setTransform(matrix);
     }
-
 }

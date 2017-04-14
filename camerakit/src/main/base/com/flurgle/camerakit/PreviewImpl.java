@@ -8,6 +8,7 @@ import android.view.View;
 abstract class PreviewImpl {
 
     interface Callback {
+
         void onSurfaceChanged();
     }
 
@@ -96,5 +97,4 @@ abstract class PreviewImpl {
     int getTrueHeight() {
         return mTrueHeight;
     }
-
 }
